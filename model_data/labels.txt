@@ -1,0 +1,15 @@
+up arrow
+nine
+zero
+alphabet z
+right arrow
+six
+alphabet x
+go
+seven
+alphabet y
+eight
+down arrow
+alphabet v
+left arrow
+alphabet w
