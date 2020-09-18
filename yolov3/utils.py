@@ -15,13 +15,7 @@ import random
 import colorsys
 from yolov3.yolov4 import *
 from tensorflow.python.saved_model import tag_constants
-from picamera import PiCamera
-from picamera.array import PiRGBArray
-
-camera = PiCamera()
-camera.resolution = (640, 480)
-camera.framerate = 32
-rawCapture = PiRGBArray(camera, size=(640, 480))
+from yolov3.pistream import PiVideoStream
 
 
 def load_yolo_weights(model, weights_file):
@@ -276,6 +270,8 @@ def postprocess_boxes(pred_bbox, original_image, input_size, score_threshold):
 def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_COCO_CLASSES, score_threshold=0.3,
                     iou_threshold=0.45, rectangle_colors=''):
     times = []
+
+    vs = PiVideoStream().start()
     # vid = cv2.VideoCapture(0)
     #
     # # by default VideoCapture returns float instead of int
@@ -285,8 +281,8 @@ def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_
     # codec = cv2.VideoWriter_fourcc(*'XVID')
     # out = cv2.VideoWriter(output_path, codec, fps, (width, height)) # output_path must be .mp4
 
-    for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        frame = frame.array
+    while True:
+        frame = vs.read()
 
         try:
             original_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -321,10 +317,10 @@ def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_
         ms = sum(times) / len(times) * 1000
         fps = 1000 / ms
 
-        print("Time: {:.2f}ms, {:.1f} FPS".format(ms, fps))
+        #print("Time: {:.2f}ms, {:.1f} FPS".format(ms, fps))
 
         frame = draw_bbox(original_frame, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
-        image = cv2.putText(frame, "Time: {:.1f}FPS".format(fps), (0, 30),
+        cv2.putText(frame, "Time: {:.1f}FPS".format(fps), (0, 30),
                             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255), 2)
 
         if output is not None:
