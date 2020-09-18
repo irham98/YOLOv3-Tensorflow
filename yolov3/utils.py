@@ -272,14 +272,9 @@ def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_
     times = []
 
     vs = PiVideoStream().start()
-    # vid = cv2.VideoCapture(0)
-    #
-    # # by default VideoCapture returns float instead of int
-    # width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    # fps = int(vid.get(cv2.CAP_PROP_FPS))
-    # codec = cv2.VideoWriter_fourcc(*'XVID')
-    # out = cv2.VideoWriter(output_path, codec, fps, (width, height)) # output_path must be .mp4
+
+    #wait for picamera to warm up
+    time.sleep(2.0)
 
     while True:
         frame = vs.read()
@@ -287,7 +282,7 @@ def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_
         try:
             original_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             original_frame = cv2.cvtColor(original_frame, cv2.COLOR_BGR2RGB)
-        except:
+        except Exception as e:
             break
         image_data = image_preprocess(np.copy(original_frame), [input_size, input_size])
         image_data = image_data[np.newaxis, ...].astype(np.float32)
@@ -317,11 +312,11 @@ def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_
         ms = sum(times) / len(times) * 1000
         fps = 1000 / ms
 
-        #print("Time: {:.2f}ms, {:.1f} FPS".format(ms, fps))
+        # print("Time: {:.2f}ms, {:.1f} FPS".format(ms, fps))
 
         frame = draw_bbox(original_frame, bboxes, CLASSES=CLASSES, rectangle_colors=rectangle_colors)
         cv2.putText(frame, "Time: {:.1f}FPS".format(fps), (0, 30),
-                            cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255), 2)
+                    cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255), 2)
 
         if output is not None:
             # print(output)
@@ -335,4 +330,5 @@ def detect_realtime(Yolo, output=None, input_size=416, show=False, CLASSES=YOLO_
                 cv2.destroyAllWindows()
                 break
 
+    vs.stop()
     cv2.destroyAllWindows()

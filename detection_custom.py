@@ -110,5 +110,5 @@ threading.Thread(target=stream, daemon=True).start()
 
 yolo = Load_Yolo_model()
 
-detect_realtime(yolo, output=output, input_size=YOLO_INPUT_SIZE, show=True, CLASSES=TRAIN_CLASSES,
+detect_realtime(yolo, output=output, input_size=YOLO_INPUT_SIZE, show=False, CLASSES=TRAIN_CLASSES,
                 rectangle_colors=(255, 0, 0))

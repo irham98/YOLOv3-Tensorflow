@@ -17,7 +17,7 @@ class PiVideoStream:
 
     def start(self):
         # start the thread to read frames from the video stream
-        Thread(target=self.update, args=(), daemon=True).start()
+        Thread(target=self.update, daemon=True).start()
         return self
 
     def update(self):
